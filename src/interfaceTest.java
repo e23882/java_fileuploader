@@ -1,5 +1,10 @@
-
+import com.sun.scenario.effect.ImageData;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -9,13 +14,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
+import java.net.UnknownHostException;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -31,6 +41,7 @@ import org.jsoup.select.Elements;
 
 public class interfaceTest implements ListSelectionListener , ActionListener
 {
+    JFrame f;
     int port=81;
     String ip="49.158.107.110";//連線ip
     String uploadip="49.158.107.110";
@@ -45,13 +56,25 @@ public class interfaceTest implements ListSelectionListener , ActionListener
      
     public static void main(String [] args) throws IOException
     {
+         //LoadData img = new LoadData();
         interfaceTest fa =new interfaceTest();
+        fa.loading();
+        
         fa.checkNet("http://"+fa.ip+"/Uploads/");      //檢查連線
             if(fa.checknet==true)
             {
                 JOptionPane.showMessageDialog(null,fa.net, "連線狀態提示", JOptionPane.PLAIN_MESSAGE );
                 fa.getnetFile(fa.ip);    //抓遠端檔案名稱 下載連結
-                fa.setGUI();        //設定介面  download.upload refresh
+                try
+                {
+                    fa.setGUI();        //設定介面  download.upload refresh
+                }
+                catch(Exception fe)
+                {
+                    JOptionPane.showMessageDialog(null,"產生介面失敗"+fe.getMessage(), "介面產生提示", JOptionPane.PLAIN_MESSAGE );
+                }
+                
+                
             }
             else
             {
@@ -65,33 +88,98 @@ public class interfaceTest implements ListSelectionListener , ActionListener
     {
         System.out.println(input);
     }
-    public void setGUI()
+    public void reGUI(JFrame f) throws IOException
     {
-         String[] nations={};
+        f.dispose();
+        interfaceTest fa=new interfaceTest();
+        fa.getnetFile(fa.ip);
+        fa.setGUI();
+    }
+    
+    public void loading()
+    {
+         JFrame mainFrame;
+    JLabel icon;
+    Container contentPane;
+     mainFrame = new JFrame();
+     contentPane = mainFrame.getContentPane();
+     icon = new JLabel(new ImageIcon("loading.jpg"));
+     contentPane.add(icon);
+     //將Frame置於螢幕中間
+     Dimension dim = mainFrame.getToolkit().getScreenSize();
+     mainFrame.setLocation(dim.width/2 - mainFrame.getWidth()/2 , dim.height/2 - mainFrame.getHeight()/2);
+     mainFrame.setSize(400, 300);
+     //取消標題列
+     mainFrame.setUndecorated(true);
+     mainFrame.setVisible(true);
+     
+     try 
+     {
+        Thread.sleep(5000);
+        mainFrame.dispose();
+     } 
+     catch (InterruptedException e) 
+     {
+        e.printStackTrace();
+     }
+    }
+    
+    public void setGUI() throws UnknownHostException
+    {
+        java.net.URL imgURL1 = interfaceTest.class.getResource("/images/refresh.png");
+        java.net.URL imgURL2 = interfaceTest.class.getResource("/images/set.png");
+        java.net.URL imgURL3 = interfaceTest.class.getResource("/images/upload.png");
+        java.net.URL imgURL4 = interfaceTest.class.getResource("/images/checked.png");
+        ImageIcon im1 = new ImageIcon(imgURL1);
+        ImageIcon im2 = new ImageIcon(imgURL2);
+        ImageIcon im3 = new ImageIcon(imgURL3);
+        ImageIcon im4 = new ImageIcon(imgURL4);
+        File f1=new File("set.png");
+        File f2=new File("upload.png");
+        File f3=new File("refresh.png");
+    
+       
         
-        JFrame f =new JFrame("yee");
+        Label lb=new Label();
+
+        JLabel imageLabel = new JLabel(im4); 
+        InetAddress myComputer = InetAddress.getLocalHost() ;
+        lb.setText(myComputer+" is connecting...");
+        
+        lb.setForeground(Color.blue);
+        f =new JFrame("yee");
+        f. setResizable(false);
         JScrollPane jsp=new JScrollPane();
-        //JList<String> list =new JList<String>(_fileName);
-            //JList<String> list; 宣告到全域變數
             list=new JList<String>(_fileName);
-        JButton bt_refresh=new JButton("更新列表");
-        JButton bt_set=new JButton("設定路徑");
-        JButton bt_upload=new JButton("上傳檔案");
+        JButton bt_refresh=new JButton("更新",im1);
+        JButton bt_set=new JButton("設定",im2);
+        JButton bt_upload=new JButton("上傳",im3);
+        bt_refresh.setBackground(new Color(0,150,0));
+        bt_set.setBackground(new Color(0,150,0));
+        bt_upload.setBackground(new Color(0,150,0));
+        
         //宣告
         
         f.getContentPane().setLayout(null);
         bt_set.addActionListener(this);
+        //bt_set.addActionListener(new interfaceTest(1));
         bt_refresh.addActionListener(this);
-        list.addListSelectionListener(this);
+        //bt_refresh.addActionListener(new interfaceTest(2));
         bt_upload.addActionListener(this);
+        //bt_upload.addActionListener(new interfaceTest(3));
+        list.addListSelectionListener(this);
+        
         jsp.setViewportView(list);
-        bt_refresh.setBounds(30, 350, 90, 20);
-        bt_set.setBounds(150, 350, 90, 20);
-        bt_upload.setBounds(270, 350, 90, 20);
-        jsp.setBounds(30, 30, 330, 300);
+        bt_refresh.setBounds(15,5, 100, 50);
+        bt_set.setBounds(145,5, 100, 50);
+        bt_upload.setBounds(275,5, 100, 50);
+        jsp.setBounds(0, 60, 400, 360);
         f.setBounds(100, 100, 400, 500);
         //設定屬性
-        
+        lb.setBounds(30, 445, 210, 30);
+        imageLabel.setBounds(5, 450, 20, 20);
+        f.add(imageLabel);
+        f.add(lb);
         f.add(jsp);
         f.add(bt_refresh);
         f.add(bt_set);
@@ -119,9 +207,6 @@ public class interfaceTest implements ListSelectionListener , ActionListener
                         }
                 }    
             });
-        
-        
-        
     }
     public void checkNet(String input)
     {
@@ -200,6 +285,7 @@ public class interfaceTest implements ListSelectionListener , ActionListener
     public void Upload(String uploadfile)
     {
             this.connectServer(uploadip, 81, upfile);
+            
     }
     public void Download(String file,String saveName,String ip)
     {
@@ -317,13 +403,14 @@ public class interfaceTest implements ListSelectionListener , ActionListener
             //this.setGUI();
             //this.reFresh();
             try
-            {
-                this.reFresh();
+            {               this.reFresh();
+                 this.reGUI(f);
             }
             catch(Exception re)
             {
                 pr(re.getMessage());
             }
+           
             
             
             
