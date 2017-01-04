@@ -107,7 +107,8 @@ public class interfaceTest implements ListSelectionListener , ActionListener
      contentPane.add(icon);
      //將Frame置於螢幕中間
      Dimension dim = mainFrame.getToolkit().getScreenSize();
-     mainFrame.setLocation(dim.width/2 - mainFrame.getWidth()/2 , dim.height/2 - mainFrame.getHeight()/2);
+     Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+     mainFrame.setLocation(screenSize.width/3  , screenSize.height/3 );
      mainFrame.setSize(400, 300);
      //取消標題列
      mainFrame.setUndecorated(true);
